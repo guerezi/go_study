@@ -6,13 +6,17 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"log"
-	"net/http"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/helmet"
+	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/middleware/requestid"
 )
 
 type Response struct {
@@ -23,11 +27,28 @@ type Response struct {
 
 func main() {
 	var u Usecases = &AllUsecases{}
+	l := log.New()
+	l.SetFormatter(&log.JSONFormatter{PrettyPrint: true})
+
 	var h IHandler = &Handler{
 		Usecases: u,
+		Logger:   l,
 	}
 
+	// TODO(guerezi): Fazer -> https://docs.gofiber.io/guide/error-handling#custom-error-handler
 	app := fiber.New()
+	// Logging Request ID
+	app.Use(requestid.New())
+	app.Use(func(c *fiber.Ctx) error {
+		l.WithFields(log.Fields{
+			"req":    "aaaa",
+			"Method": c.Method(),
+			"rotue":  c.Route().Path,
+		}).Info(c.Request())
+		return nil
+	})
+	app.Use(helmet.New())
+	app.Use(recover.New())
 
 	api := app.Group("/api") // func(c *fiber.Ctx) error {
 	// 	log.Println("Handler do group")
@@ -45,6 +66,7 @@ func main() {
 // Implements implicito
 type Handler struct {
 	Usecases Usecases
+	Logger   *log.Logger
 }
 
 type IHandler interface {
@@ -67,7 +89,12 @@ var _ IHandler = new(Handler)
 
 func (h *Handler) GetNothing(c *fiber.Ctx) error {
 	c.Response().Header.Add("Content-Type", "enconding/json")
-	log.Println("Get nothing")
+	entry := h.Logger.WithFields(log.Fields{
+		"reqId": c.GetReqHeaders()["X-Request-Id"],
+	})
+
+	entry.Infoln("REQUEST ID:", c.Get(fiber.HeaderXRequestedWith))
+	entry.WithContext(c.Context()).Info("ctx")
 
 	// ctx := context.Background()
 	// ctx, cancel := context.WithCancel(context.Background())
@@ -90,19 +117,35 @@ func (h *Handler) GetNothing(c *fiber.Ctx) error {
 		}
 	}()
 
-	if ok := h.Usecases.GetNothing(); ok {
+	if _, err := h.Usecases.GetNothing(c.Context()); err != nil {
 		// json.NewEncoder(c.Response().BodyWriter()).Encode({err})
+		// return errors.Join(fiber.ErrBadGateway, err)
 	}
 
-	err := ErrorHandler{
-		Message: "Deu ruim",
-		Status:  http.StatusEarlyHints,
-	}
+	// err := ErrorHandler{
+	// 	Message: "Deu ruim",
+	// 	Status:  http.StatusEarlyHints,
+	// }
 
-	log.Println(err)
+	// e := errors.Join(fiber.ErrBadGateway, fiber.ErrConflict, fiber.ErrBadRequest)
+	// anotherE := errors.Unwrap(e)
+	aaaanother := fmt.Errorf("errei_mds %w", fiber.ErrForbidden)
+	anotherE := errors.Unwrap(aaaanother)
 
-	c.SendStatus(418)
-	return c.SendString("Hello, World!")
+	// errors.Is()
+
+	// errors.As()
+
+	h.Logger.WithError(aaaanother).WithFields(log.Fields{
+		"chaves":  "chaves",
+		"todos":   "atentos",
+		"olhando": "pra tv",
+	}).Errorln("Amém")
+
+	return anotherE
+
+	// return fiber.ErrBadRequest
+	// return c.Status(201).SendString("Hello, World!")
 
 	// json.NewEncoder(c.Response().BodyWriter()).Encode(err)
 	// return err
@@ -114,9 +157,10 @@ func (h *Handler) GetNothing(c *fiber.Ctx) error {
 type NothingUsecases struct{}
 
 // GetNothing implements IUsecases.
-func (u *NothingUsecases) GetNothing() bool {
+func (u *NothingUsecases) GetNothing(c context.Context) (bool, error) {
 	log.Println("Got nothing")
-	return true
+
+	return true, errors.New("Errei, fui garoto")
 }
 
 // arquivo
@@ -130,7 +174,7 @@ func (u *UserUsecases) GetUsers() (any, error) {
 }
 
 type Usecases interface {
-	GetNothing() bool
+	GetNothing(context.Context) (bool, error)
 	GetUsers() (any, error)
 }
 
