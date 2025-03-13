@@ -25,6 +25,7 @@ func (s *Server) Listen(port string) error {
 			"Method": c.Method(),
 			"rotue":  c.Route().Path,
 		}).Info(c.Request())
+
 		return c.Next()
 	})
 	app.Use(helmet.New())

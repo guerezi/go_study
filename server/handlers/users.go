@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+
 	"imobiliaria/internal/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,6 +25,7 @@ func (h *Handler) CreateUser(c *fiber.Ctx) error {
 	/// Valida o que tem na declaração da struct
 	if err := h.Validator.Struct(u); err != nil {
 		logrus.Println(err)
+
 		return errors.Join(fiber.ErrBadRequest, err)
 	}
 
@@ -32,7 +34,6 @@ func (h *Handler) CreateUser(c *fiber.Ctx) error {
 		Email: u.Email,
 		Age:   u.Age,
 	})
-
 	if err != nil {
 		return err
 	}
@@ -42,7 +43,6 @@ func (h *Handler) CreateUser(c *fiber.Ctx) error {
 
 func (h *Handler) GetUser(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
-
 	if err != nil {
 		return errors.Join(fiber.ErrBadRequest, err)
 	}

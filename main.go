@@ -22,10 +22,10 @@ func main() {
 
 	// Preicsa ser ponteiro pq to recendo interface (??)
 	var m repositories.Repositories = memory.NewMemory()
-	var u usecases.Usecases = usecases.NewUsecases(m)
-	var v *validator.Validate = validator.New()
+	u := usecases.NewUsecases(m)
+	v := validator.New()
 
-	var h handlers.Handler = handlers.Handler{
+	h := handlers.Handler{
 		Usecases:  u,
 		Validator: v,
 	}
