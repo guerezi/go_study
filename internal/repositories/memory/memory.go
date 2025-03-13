@@ -2,33 +2,32 @@ package memory
 
 import (
 	"context"
+	"imobiliaria/internal/models"
 	"imobiliaria/internal/repositories"
 )
 
 type Memory struct {
-	users map[string]any
+	users map[int]*models.User
 }
 
 func NewMemory() *Memory {
 	return &Memory{
-		users: make(map[string]any),
+		users: make(map[int]*models.User),
 	}
 }
 
 // CreateUser implements repositories.Repositories.
-func (m *Memory) CreateUser(ctx context.Context, user any) (any, error) {
-	m.users["1"] = user
-	return user, nil
-}
+func (m *Memory) CreateUser(ctx context.Context, user *models.User) (*models.User, error) {
+	id := len(m.users) + 1
+	user.ID = id
+	m.users[id] = user
 
-// GetNothing implements repositories.Repositories.
-func (m *Memory) GetNothing(context.Context) (bool, error) {
-	panic("unimplemented")
+	return m.users[id], nil
 }
 
 // GetUser implements repositories.Repositories.
-func (m *Memory) GetUser(context.Context, string) (any, error) {
-	return m.users["1"], nil
+func (m *Memory) GetUser(ctx context.Context, id int) (*models.User, error) {
+	return m.users[id], nil
 }
 
 var _ repositories.Repositories = &Memory{}

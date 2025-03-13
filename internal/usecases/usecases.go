@@ -14,7 +14,6 @@ type usecases struct {
 
 type Usecases interface {
 	Users
-	Nothings
 	// Banks
 	// Transactions
 }

@@ -1,18 +1,21 @@
 package usecases
 
-import "context"
+import (
+	"context"
+	"imobiliaria/internal/models"
+)
 
 type Users interface {
-	CreateUser(context.Context, any) (any, error)
-	GetUser(context.Context, string) (any, error)
+	CreateUser(context.Context, *models.User) (*models.User, error)
+	GetUser(context.Context, int) (*models.User, error)
 }
 
 // CreateUser implements Usecases.
-func (u *usecases) CreateUser(ctx context.Context, user any) (any, error) {
+func (u *usecases) CreateUser(ctx context.Context, user *models.User) (*models.User, error) {
 	return u.repo.CreateUser(ctx, user)
 }
 
 // GetUser implements Usecases.
-func (u *usecases) GetUser(ctx context.Context, id string) (any, error) {
+func (u *usecases) GetUser(ctx context.Context, id int) (*models.User, error) {
 	return u.repo.GetUser(ctx, id)
 }

@@ -1,12 +1,13 @@
 package main
 
 import (
-	"imobiliaria/internal/handlers"
 	"imobiliaria/internal/repositories"
 	"imobiliaria/internal/repositories/memory"
 	"imobiliaria/internal/usecases"
-	"imobiliaria/pkg/server"
+	"imobiliaria/server"
+	"imobiliaria/server/handlers"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,9 +23,11 @@ func main() {
 	// Preicsa ser ponteiro pq to recendo interface (??)
 	var m repositories.Repositories = memory.NewMemory()
 	var u usecases.Usecases = usecases.NewUsecases(m)
+	var v *validator.Validate = validator.New()
 
 	var h handlers.Handler = handlers.Handler{
-		Usecases: u,
+		Usecases:  u,
+		Validator: v,
 	}
 
 	/// H com & quer dizer que não é uma copia
