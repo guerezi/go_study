@@ -1,6 +1,8 @@
 package server
 
 import (
+	"errors"
+	errorsUsecase "imobiliaria/internal/usecases/errors"
 	"imobiliaria/server/handlers"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,9 +17,29 @@ type Server struct {
 }
 
 func (s *Server) Listen(port string) error {
-	// TODO(guerezi): Fazer -> https://docs.gofiber.io/guide/error-handling#custom-error-handler
+	app := fiber.New(fiber.Config{
+		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+			// NOTE: this mf should be a trace or a debug
+			logrus.WithError(err).Infoln("Got an exception")
 
-	app := fiber.New()
+			// Retrieve the custom status code if it's a *fiber.Error
+			var e *errorsUsecase.Error
+			if !errors.As(err, &e) {
+				// grafa.add(err)
+				return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+			}
+
+			switch e.Code {
+			case errorsUsecase.ErrorCodeInvalid:
+				return ctx.Status(fiber.StatusBadRequest).SendString(e.Message)
+			case errorsUsecase.ErrorCodeNotFound:
+				return ctx.Status(fiber.StatusNotFound).SendString(e.Message)
+			default:
+				// sentry.add(err)
+				return ctx.Status(fiber.StatusNotImplemented).SendString("Unknow Error")
+			}
+		},
+	})
 	app.Use(requestid.New())
 	app.Use(recover.New()) // Esse corno não funcionou >:(
 	app.Use(func(c *fiber.Ctx) error {

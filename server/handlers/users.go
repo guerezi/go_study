@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-
 	"imobiliaria/internal/models"
 
 	"github.com/gofiber/fiber/v2"

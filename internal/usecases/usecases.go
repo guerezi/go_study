@@ -2,13 +2,12 @@ package usecases
 
 import (
 	"errors"
-
 	"imobiliaria/internal/repositories"
 )
 
 var (
-	ErrUserNotFound  error = errors.New("no User was founded")
-	ErrUsersNotFound error = errors.New("no Users were founded")
+	ErrUserNotFound  = errors.New("no User was founded")
+	ErrUsersNotFound = errors.New("no Users were founded")
 )
 
 type usecases struct {
