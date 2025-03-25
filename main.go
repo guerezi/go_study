@@ -2,7 +2,7 @@ package main
 
 import (
 	"imobiliaria/internal/repositories"
-	"imobiliaria/internal/repositories/memory"
+	"imobiliaria/internal/repositories/mysql"
 	"imobiliaria/internal/usecases"
 	"imobiliaria/server"
 	"imobiliaria/server/handlers"
@@ -21,7 +21,7 @@ func main() {
 	logrus.SetFormatter(&logrus.JSONFormatter{PrettyPrint: true})
 
 	// Preicsa ser ponteiro pq to recendo interface (??)
-	var m repositories.Repositories = memory.NewMemory()
+	var m repositories.Repositories = mysql.NewRepository()
 	u := usecases.NewUsecases(m)
 	v := validator.New()
 
