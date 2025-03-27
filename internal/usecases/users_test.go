@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"testing"
+
 	"imobiliaria/internal/models"
 	"imobiliaria/internal/repositories/mocks"
 	errorsUsecase "imobiliaria/internal/usecases/errors"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 )

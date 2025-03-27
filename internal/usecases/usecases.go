@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"errors"
+
 	"imobiliaria/internal/repositories"
 )
 

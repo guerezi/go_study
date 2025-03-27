@@ -2,14 +2,14 @@ package errors
 
 import "fmt"
 
-type ErrorHandler struct {
+type Error struct {
 	Message string
 	Status  int
 }
 
 // Error implements error.
-func (e ErrorHandler) Error() string {
+func (e Error) Error() string {
 	return fmt.Sprintf("Error %d: %s ", e.Status, e.Message)
 }
 
-var _ error = new(ErrorHandler)
+var _ error = new(Error)

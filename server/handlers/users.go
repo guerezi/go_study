@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"errors"
 	"imobiliaria/internal/models"
+	"imobiliaria/server/handlers/errors"
+	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
@@ -25,7 +26,10 @@ func (h *Handler) CreateUser(c *fiber.Ctx) error {
 	if err := h.Validator.Struct(u); err != nil {
 		logrus.Println(err)
 
-		return errors.Join(fiber.ErrBadRequest, err)
+		return &errors.Error{
+			Message: "Invalid user data",
+			Status:  http.StatusBadRequest,
+		}
 	}
 
 	result, err := h.Usecases.CreateUser(c.Context(), &models.User{
@@ -43,7 +47,7 @@ func (h *Handler) CreateUser(c *fiber.Ctx) error {
 func (h *Handler) GetUser(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 	if err != nil {
-		return errors.Join(fiber.ErrBadRequest, err)
+		return fiber.ErrBadRequest
 	}
 
 	user, err := h.Usecases.GetUser(c.Context(), id)
