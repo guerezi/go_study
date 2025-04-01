@@ -14,6 +14,36 @@ type Repositories struct {
 	mock.Mock
 }
 
+// CreateHouse provides a mock function with given fields: ctx, house
+func (_m *Repositories) CreateHouse(ctx context.Context, house *models.House) (*models.House, error) {
+	ret := _m.Called(ctx, house)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateHouse")
+	}
+
+	var r0 *models.House
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.House) (*models.House, error)); ok {
+		return rf(ctx, house)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *models.House) *models.House); ok {
+		r0 = rf(ctx, house)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.House)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *models.House) error); ok {
+		r1 = rf(ctx, house)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CreateUser provides a mock function with given fields: _a0, _a1
 func (_m *Repositories) CreateUser(_a0 context.Context, _a1 *models.User) (*models.User, error) {
 	ret := _m.Called(_a0, _a1)
@@ -44,6 +74,114 @@ func (_m *Repositories) CreateUser(_a0 context.Context, _a1 *models.User) (*mode
 	return r0, r1
 }
 
+// DeleteHouse provides a mock function with given fields: ctx, id
+func (_m *Repositories) DeleteHouse(ctx context.Context, id int) error {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteHouse")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, int) error); ok {
+		r0 = rf(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// GetHouse provides a mock function with given fields: ctx, id
+func (_m *Repositories) GetHouse(ctx context.Context, id int) (*models.House, error) {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetHouse")
+	}
+
+	var r0 *models.House
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int) (*models.House, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int) *models.House); ok {
+		r0 = rf(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.House)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetHouses provides a mock function with given fields: ctx
+func (_m *Repositories) GetHouses(ctx context.Context) ([]*models.House, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetHouses")
+	}
+
+	var r0 []*models.House
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]*models.House, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []*models.House); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.House)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetHousesByUserID provides a mock function with given fields: ctx, id
+func (_m *Repositories) GetHousesByUserID(ctx context.Context, id int) ([]*models.House, error) {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetHousesByUserID")
+	}
+
+	var r0 []*models.House
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int) ([]*models.House, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int) []*models.House); ok {
+		r0 = rf(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.House)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetUser provides a mock function with given fields: _a0, _a1
 func (_m *Repositories) GetUser(_a0 context.Context, _a1 int) (*models.User, error) {
 	ret := _m.Called(_a0, _a1)
@@ -67,6 +205,36 @@ func (_m *Repositories) GetUser(_a0 context.Context, _a1 int) (*models.User, err
 
 	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
 		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateHouse provides a mock function with given fields: ctx, house
+func (_m *Repositories) UpdateHouse(ctx context.Context, house *models.House) (*models.House, error) {
+	ret := _m.Called(ctx, house)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateHouse")
+	}
+
+	var r0 *models.House
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.House) (*models.House, error)); ok {
+		return rf(ctx, house)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *models.House) *models.House); ok {
+		r0 = rf(ctx, house)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.House)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *models.House) error); ok {
+		r1 = rf(ctx, house)
 	} else {
 		r1 = ret.Error(1)
 	}

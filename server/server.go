@@ -18,8 +18,6 @@ type Server struct {
 	Handler *handlers.Handler
 }
 
-
-
 func (s *Server) Listen(port string) error {
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
@@ -72,8 +70,19 @@ func (s *Server) Listen(port string) error {
 
 	api := app.Group("/api")
 
-	api.Get("/users/:id", s.Handler.GetUser)
-	api.Post("/users", s.Handler.CreateUser)
+	users := api.Group("/users")
+
+	users.Get("/:id", s.Handler.GetUser)
+	users.Post("/", s.Handler.CreateUser)
+
+	houses := api.Group("/houses")
+
+	houses.Get("/", s.Handler.GetHouses)
+	houses.Get("/:id", s.Handler.GetHouse)
+	houses.Post("/", s.Handler.CreateHouse)
+	houses.Put("/:id", s.Handler.UpdateHouse)
+	houses.Delete("/:id", s.Handler.DeleteHouse)
+	houses.Get("/user/:id", s.Handler.GetHousesByUserID)
 
 	return app.Listen(port)
 }
