@@ -4,6 +4,7 @@ import (
 	"context"
 	"imobiliaria/internal/repositories/mysql"
 	"imobiliaria/internal/usecases"
+	"imobiliaria/internal/validators"
 	"imobiliaria/server"
 	"imobiliaria/server/handlers"
 
@@ -28,6 +29,7 @@ type Config struct {
 
 func main() {
 	logrus.SetFormatter(&logrus.JSONFormatter{PrettyPrint: true})
+	logrus.SetLevel(logrus.TraceLevel)
 
 	ctx := context.Background()
 
@@ -51,9 +53,27 @@ func main() {
 		logrus.WithError(err).Fatal("Error creating repository")
 	}
 
-	u := usecases.NewUsecases(m)
+	// TODO: validator cuistomizado iaaaa
 	v := validator.New()
 
+	rules := map[string]string{
+		"street":  `^[A-Za-zÀ-ÿ0-9\sºª.,'-]{3,100}$`,
+		"number":  `^[0-9]{1,6}[A-Za-z\-ºª\/]{0,10}$`,
+		"city":    `^[A-Za-zÀ-ÿ\s'-]{2,100}$`,
+		"state":   `^[A-Z]{2}$`,
+		"zipcode": `^[0-9]{5}-[0-9]{3}$`,
+	}
+
+	for index, val := range rules {
+		err = v.RegisterValidation(index, validators.RegexValidator(val))
+		// TODO: Better errors messages
+		// v.RegisterTranslation(index, "aaaaa")
+		if err != nil {
+			logrus.WithError(err).Fatalf("Error registering %s validator", index)
+		}
+	}
+
+	u := usecases.NewUsecases(m, v)
 	h := handlers.Handler{
 		Usecases:  u,
 		Validator: v,

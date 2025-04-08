@@ -55,7 +55,7 @@ func (m *MySQL) Migrate() error {
 		return err
 	}
 
-	_, err = m.Database.Exec("CREATE TABLE IF NOT EXISTS houses (id INT AUTO_INCREMENT PRIMARY KEY, street VARCHAR(255), number INT, city VARCHAR(255), state VARCHAR(255), zip_code VARCHAR(255), price FLOAT, owner_id INT)")
+	_, err = m.Database.Exec("CREATE TABLE IF NOT EXISTS houses (id INT AUTO_INCREMENT PRIMARY KEY, street VARCHAR(255), number VARCHAR(255), city VARCHAR(255), state VARCHAR(255), zip_code VARCHAR(255), price FLOAT, owner_id INT)")
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (m *MySQL) CreateUser(ctx context.Context, user *models.User) (*models.User
 	}
 
 	logrus.Trace("User created?")
-	rows, err := m.Database.Query("SELECT * FROM users WHERE email = ?", user.Email)
+	rows, err := m.Database.QueryContext(ctx, "SELECT * FROM users WHERE email = ?", user.Email)
 	if err != nil {
 		logrus.WithError(err).Trace("Error creating user")
 
@@ -107,7 +107,7 @@ func (m *MySQL) CreateUser(ctx context.Context, user *models.User) (*models.User
 // GetUser implements repositories.Repositories.
 func (m *MySQL) GetUser(ctx context.Context, id int) (*models.User, error) {
 	logrus.Trace("Getting user")
-	rows, err := m.Database.Query("SELECT * FROM users WHERE id = ?", id)
+	rows, err := m.Database.QueryContext(ctx, "SELECT * FROM users WHERE id = ?", id)
 	if err != nil {
 		logrus.WithError(err).Trace("Error getting user")
 
@@ -134,9 +134,9 @@ func (m *MySQL) GetUser(ctx context.Context, id int) (*models.User, error) {
 // GetHouse Gets a house by ID
 //
 // id must be greater than 0
-func (m *MySQL) GetHouse(ctx context.Context, id int) (*models.House, error) {
+func (m *MySQL) GetHouse(ctx context.Context, id uint) (*models.House, error) {
 	logrus.Trace("Getting House")
-	rows, err := m.Database.Query("SELECT * FROM houses WHERE id = ?", id)
+	rows, err := m.Database.QueryContext(ctx, "SELECT * FROM houses WHERE id = ?", id)
 	if err != nil {
 		logrus.WithError(err).Trace("Error getting house")
 
@@ -161,8 +161,8 @@ func (m *MySQL) GetHouse(ctx context.Context, id int) (*models.House, error) {
 }
 
 func (m *MySQL) CreateHouse(ctx context.Context, house *models.House) (*models.House, error) {
-	logrus.Trace("Executing CreateHouse", house)
-	result, err := m.Database.Exec("INSERT INTO houses (street, number, city, state, zip_code, price, owner_id) VALUES (?, ?, ?, ?, ?, ?, ?)", house.Street, house.Number, house.City, house.State, house.ZipCode, house.Price, house.OwnerID)
+	logrus.Trace("Executing CreateHouse", house.Number)
+	result, err := m.Database.Exec("INSERT INTO houses (street, number, city, state, zip_code, price, owner_id) VALUES (?, ?, ?, ?, ?, ?, ?)", house.Street, house.Number, house.City, house.State, house.ZipCode, house.Price, *house.OwnerID)
 	if err != nil {
 		logrus.WithError(err).Trace("Error exec creating house")
 
@@ -177,7 +177,7 @@ func (m *MySQL) CreateHouse(ctx context.Context, house *models.House) (*models.H
 	}
 
 	// Too much, mas não tenho unique aqui
-	rows, err := m.Database.Query("SELECT * FROM houses WHERE id = ?", id)
+	rows, err := m.Database.QueryContext(ctx, "SELECT * FROM houses WHERE id = ?", id)
 	if err != nil {
 		logrus.WithError(err).Trace("Error creating house")
 
@@ -201,9 +201,10 @@ func (m *MySQL) CreateHouse(ctx context.Context, house *models.House) (*models.H
 	return &returnHouse, nil
 }
 
-func (m *MySQL) GetHouses(ctx context.Context) ([]*models.House, error) {
+func (m *MySQL) GetHouses(ctx context.Context, limit uint, offset uint) ([]*models.House, error) {
 	logrus.Trace("Getting Houses")
-	rows, err := m.Database.Query("SELECT * FROM houses")
+	/// TODO: sorted funciona?
+	rows, err := m.Database.QueryContext(ctx, "SELECT * FROM houses SORTED BY `ID` LIMIT ? OFFSET ?", limit, offset)
 	if err != nil {
 		logrus.WithError(err).Trace("Error getting houses")
 
@@ -241,7 +242,7 @@ func (m *MySQL) UpdateHouse(ctx context.Context, house *models.House) (*models.H
 	return house, nil
 }
 
-func (m *MySQL) DeleteHouse(ctx context.Context, id int) error {
+func (m *MySQL) DeleteHouse(ctx context.Context, id uint) error {
 	logrus.Trace("Deleting House")
 	_, err := m.Database.Exec("DELETE FROM houses WHERE id = ?", id)
 	if err != nil {
@@ -253,9 +254,10 @@ func (m *MySQL) DeleteHouse(ctx context.Context, id int) error {
 	return nil
 }
 
-func (m *MySQL) GetHousesByUserID(ctx context.Context, id int) ([]*models.House, error) {
+func (m *MySQL) GetHousesByUserID(ctx context.Context, id uint) ([]*models.House, error) {
 	logrus.Trace("Getting Houses by User ID")
-	rows, err := m.Database.Query("SELECT * FROM houses WHERE owner_id = ?", id)
+	//TODO: paginação aqui também
+	rows, err := m.Database.QueryContext(ctx, "SELECT * FROM houses WHERE owner_id = ?", id)
 	if err != nil {
 		logrus.WithError(err).Trace("Error getting houses by user id")
 

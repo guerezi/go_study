@@ -12,11 +12,12 @@ type Error struct {
 const (
 	ErrorCodeNotFound int = iota
 	ErrorCodeInvalid
+	ErrorDataBase
 )
 
 // Error implements error.
 func (e *Error) Error() string {
-	return fmt.Sprintf("%d - %s", e.Code, e.Message)
+	return fmt.Sprintf("Error on Usecase: %d - %s (%s)", e.Code, e.Message, e.Next)
 }
 
 func (e *Error) Unwarp() error {

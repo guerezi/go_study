@@ -4,6 +4,8 @@ import (
 	"errors"
 
 	"imobiliaria/internal/repositories"
+
+	"github.com/go-playground/validator/v10"
 )
 
 var (
@@ -13,6 +15,7 @@ var (
 
 type usecases struct {
 	repo repositories.Repositories
+	val  *validator.Validate
 }
 
 type Usecases interface {
@@ -23,6 +26,6 @@ type Usecases interface {
 
 var _ Usecases = new(usecases)
 
-func NewUsecases(repo repositories.Repositories) Usecases {
-	return &usecases{repo: repo}
+func NewUsecases(repo repositories.Repositories, val *validator.Validate) Usecases {
+	return &usecases{repo: repo, val: val}
 }

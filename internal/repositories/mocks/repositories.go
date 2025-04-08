@@ -75,7 +75,7 @@ func (_m *Repositories) CreateUser(_a0 context.Context, _a1 *models.User) (*mode
 }
 
 // DeleteHouse provides a mock function with given fields: ctx, id
-func (_m *Repositories) DeleteHouse(ctx context.Context, id int) error {
+func (_m *Repositories) DeleteHouse(ctx context.Context, id uint) error {
 	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -83,7 +83,7 @@ func (_m *Repositories) DeleteHouse(ctx context.Context, id int) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, int) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uint) error); ok {
 		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Error(0)
@@ -93,7 +93,7 @@ func (_m *Repositories) DeleteHouse(ctx context.Context, id int) error {
 }
 
 // GetHouse provides a mock function with given fields: ctx, id
-func (_m *Repositories) GetHouse(ctx context.Context, id int) (*models.House, error) {
+func (_m *Repositories) GetHouse(ctx context.Context, id uint) (*models.House, error) {
 	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -102,10 +102,10 @@ func (_m *Repositories) GetHouse(ctx context.Context, id int) (*models.House, er
 
 	var r0 *models.House
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int) (*models.House, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uint) (*models.House, error)); ok {
 		return rf(ctx, id)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int) *models.House); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uint) *models.House); ok {
 		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
@@ -113,7 +113,7 @@ func (_m *Repositories) GetHouse(ctx context.Context, id int) (*models.House, er
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, uint) error); ok {
 		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
@@ -122,9 +122,9 @@ func (_m *Repositories) GetHouse(ctx context.Context, id int) (*models.House, er
 	return r0, r1
 }
 
-// GetHouses provides a mock function with given fields: ctx
-func (_m *Repositories) GetHouses(ctx context.Context) ([]*models.House, error) {
-	ret := _m.Called(ctx)
+// GetHouses provides a mock function with given fields: ctx, limit, offset
+func (_m *Repositories) GetHouses(ctx context.Context, limit uint, offset uint) ([]*models.House, error) {
+	ret := _m.Called(ctx, limit, offset)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetHouses")
@@ -132,19 +132,19 @@ func (_m *Repositories) GetHouses(ctx context.Context) ([]*models.House, error) 
 
 	var r0 []*models.House
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]*models.House, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, uint) ([]*models.House, error)); ok {
+		return rf(ctx, limit, offset)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []*models.House); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, uint) []*models.House); ok {
+		r0 = rf(ctx, limit, offset)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*models.House)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, uint, uint) error); ok {
+		r1 = rf(ctx, limit, offset)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -153,7 +153,7 @@ func (_m *Repositories) GetHouses(ctx context.Context) ([]*models.House, error) 
 }
 
 // GetHousesByUserID provides a mock function with given fields: ctx, id
-func (_m *Repositories) GetHousesByUserID(ctx context.Context, id int) ([]*models.House, error) {
+func (_m *Repositories) GetHousesByUserID(ctx context.Context, id uint) ([]*models.House, error) {
 	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -162,10 +162,10 @@ func (_m *Repositories) GetHousesByUserID(ctx context.Context, id int) ([]*model
 
 	var r0 []*models.House
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int) ([]*models.House, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uint) ([]*models.House, error)); ok {
 		return rf(ctx, id)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int) []*models.House); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uint) []*models.House); ok {
 		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
@@ -173,7 +173,7 @@ func (_m *Repositories) GetHousesByUserID(ctx context.Context, id int) ([]*model
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, uint) error); ok {
 		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
