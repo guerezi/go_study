@@ -152,9 +152,9 @@ func (_m *Repositories) GetHouses(ctx context.Context, limit uint, offset uint) 
 	return r0, r1
 }
 
-// GetHousesByUserID provides a mock function with given fields: ctx, id
-func (_m *Repositories) GetHousesByUserID(ctx context.Context, id uint) ([]*models.House, error) {
-	ret := _m.Called(ctx, id)
+// GetHousesByUserID provides a mock function with given fields: ctx, id, limit, offset
+func (_m *Repositories) GetHousesByUserID(ctx context.Context, id uint, limit uint, offset uint) ([]*models.House, error) {
+	ret := _m.Called(ctx, id, limit, offset)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetHousesByUserID")
@@ -162,19 +162,19 @@ func (_m *Repositories) GetHousesByUserID(ctx context.Context, id uint) ([]*mode
 
 	var r0 []*models.House
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uint) ([]*models.House, error)); ok {
-		return rf(ctx, id)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, uint, uint) ([]*models.House, error)); ok {
+		return rf(ctx, id, limit, offset)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uint) []*models.House); ok {
-		r0 = rf(ctx, id)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, uint, uint) []*models.House); ok {
+		r0 = rf(ctx, id, limit, offset)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*models.House)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uint) error); ok {
-		r1 = rf(ctx, id)
+	if rf, ok := ret.Get(1).(func(context.Context, uint, uint, uint) error); ok {
+		r1 = rf(ctx, id, limit, offset)
 	} else {
 		r1 = ret.Error(1)
 	}

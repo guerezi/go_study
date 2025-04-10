@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-
 	"imobiliaria/internal/models"
 )
 

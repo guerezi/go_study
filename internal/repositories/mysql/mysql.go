@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-
 	"imobiliaria/internal/models"
 	"imobiliaria/internal/repositories"
 
@@ -43,6 +42,7 @@ func NewRepository(config *Config) (*MySQL, error) {
 
 	if err = MySQL.Migrate(); err != nil {
 		logrus.WithError(err).Error("Error migrating database")
+
 		return nil, err
 	}
 
@@ -50,12 +50,15 @@ func NewRepository(config *Config) (*MySQL, error) {
 }
 
 func (m *MySQL) Migrate() error {
-	_, err := m.Database.Exec("CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), email VARCHAR(255) UNIQUE, age INT)")
+	/// TODO: Better migration system
+	ctx := context.TODO()
+
+	_, err := m.Database.ExecContext(ctx, "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), email VARCHAR(255) UNIQUE, age INT)")
 	if err != nil {
 		return err
 	}
 
-	_, err = m.Database.Exec("CREATE TABLE IF NOT EXISTS houses (id INT AUTO_INCREMENT PRIMARY KEY, street VARCHAR(255), number VARCHAR(255), city VARCHAR(255), state VARCHAR(255), zip_code VARCHAR(255), price FLOAT, owner_id INT)")
+	_, err = m.Database.ExecContext(ctx, "CREATE TABLE IF NOT EXISTS houses (id INT AUTO_INCREMENT PRIMARY KEY, street VARCHAR(255), number VARCHAR(255), city VARCHAR(255), state VARCHAR(255), zip_code VARCHAR(255), price FLOAT, owner_id INT)")
 	if err != nil {
 		return err
 	}
@@ -66,7 +69,7 @@ func (m *MySQL) Migrate() error {
 // CreateUser implements repositories.Repositories.
 func (m *MySQL) CreateUser(ctx context.Context, user *models.User) (*models.User, error) {
 	logrus.Trace("Executing CreateUser", user)
-	result, err := m.Database.Exec("INSERT INTO users (name, email, age) VALUES (?, ?, ?)", user.Name, user.Email, user.Age)
+	result, err := m.Database.ExecContext(ctx, "INSERT INTO users (name, email, age) VALUES (?, ?, ?)", user.Name, user.Email, user.Age)
 
 	logrus.Trace("User created?", result)
 
@@ -162,7 +165,7 @@ func (m *MySQL) GetHouse(ctx context.Context, id uint) (*models.House, error) {
 
 func (m *MySQL) CreateHouse(ctx context.Context, house *models.House) (*models.House, error) {
 	logrus.Trace("Executing CreateHouse", house.Number)
-	result, err := m.Database.Exec("INSERT INTO houses (street, number, city, state, zip_code, price, owner_id) VALUES (?, ?, ?, ?, ?, ?, ?)", house.Street, house.Number, house.City, house.State, house.ZipCode, house.Price, *house.OwnerID)
+	result, err := m.Database.ExecContext(ctx, "INSERT INTO houses (street, number, city, state, zip_code, price, owner_id) VALUES (?, ?, ?, ?, ?, ?, ?)", house.Street, house.Number, house.City, house.State, house.ZipCode, house.Price, *house.OwnerID)
 	if err != nil {
 		logrus.WithError(err).Trace("Error exec creating house")
 
@@ -232,7 +235,7 @@ func (m *MySQL) GetHouses(ctx context.Context, limit uint, offset uint) ([]*mode
 
 func (m *MySQL) UpdateHouse(ctx context.Context, house *models.House) (*models.House, error) {
 	logrus.Trace("Updating House")
-	_, err := m.Database.Exec("UPDATE houses SET street = ?, number = ?, city = ?, state = ?, zip_code = ?, price = ?, owner_id = ? WHERE id = ?", house.Street, house.Number, house.City, house.State, house.ZipCode, house.Price, house.OwnerID, house.ID)
+	_, err := m.Database.ExecContext(ctx, "UPDATE houses SET street = ?, number = ?, city = ?, state = ?, zip_code = ?, price = ?, owner_id = ? WHERE id = ?", house.Street, house.Number, house.City, house.State, house.ZipCode, house.Price, house.OwnerID, house.ID)
 	if err != nil {
 		logrus.WithError(err).Trace("Error updating house")
 
@@ -244,7 +247,7 @@ func (m *MySQL) UpdateHouse(ctx context.Context, house *models.House) (*models.H
 
 func (m *MySQL) DeleteHouse(ctx context.Context, id uint) error {
 	logrus.Trace("Deleting House")
-	_, err := m.Database.Exec("DELETE FROM houses WHERE id = ?", id)
+	_, err := m.Database.ExecContext(ctx, "DELETE FROM houses WHERE id = ?", id)
 	if err != nil {
 		logrus.WithError(err).Trace("Error deleting house")
 
@@ -254,10 +257,11 @@ func (m *MySQL) DeleteHouse(ctx context.Context, id uint) error {
 	return nil
 }
 
-func (m *MySQL) GetHousesByUserID(ctx context.Context, id uint) ([]*models.House, error) {
+func (m *MySQL) GetHousesByUserID(ctx context.Context, id uint, limit uint, offset uint) ([]*models.House, error) {
 	logrus.Trace("Getting Houses by User ID")
-	//TODO: paginação aqui também
-	rows, err := m.Database.QueryContext(ctx, "SELECT * FROM houses WHERE owner_id = ?", id)
+
+	/// TODO: sorted funciona?
+	rows, err := m.Database.QueryContext(ctx, "SELECT * FROM houses WHERE owner_id = ? SORTED BY `ID` LIMIT ? OFFSET ?", id, limit, offset)
 	if err != nil {
 		logrus.WithError(err).Trace("Error getting houses by user id")
 

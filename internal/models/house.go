@@ -1,7 +1,7 @@
 package models
 
 type House struct {
-	ID      int     `json:"id" bson:"id" validate:"required"`
+	ID      int     `json:"id" bson:"id"`
 	Street  string  `json:"street" bson:"street" validate:"required,street"`
 	Number  string  `json:"number" bson:"number" validate:"required,number"`
 	City    string  `json:"city" bson:"city" validate:"required,city"`

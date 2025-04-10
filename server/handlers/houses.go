@@ -21,34 +21,18 @@ type House struct {
 	// OwnerID *int    `json:"owner_id"`
 }
 
-// type FullHouse struct {
-// 	House
-//  Address
-// 	HouseOwnderID
-// }
-
-// type Address struct {
-// 	Street  string `json:"street" validate:"required"`
-// 	Number  string `json:"number" validate:"required"`
-// 	City    string `json:"city" validate:"required"`
-// 	State   string `json:"state" validate:"required"`
-// 	ZipCode string `json:"zip_code" validate:"required"`
-// }
-
-// type HouseOwnderID struct {
-// 	OwnerID *int `json:"owner_id"`
-// }
-
 func (h *Handler) CreateHouse(c *fiber.Ctx) error {
+	logrus.Trace("CreateHouse handler called")
+
 	house := new(House)
 	if err := c.BodyParser(house); err != nil {
+		logrus.WithError(err).Trace("Error parsing house")
+
 		return err
 	}
 
-	logrus.Trace(house)
-
 	if err := h.Validator.Struct(house); err != nil {
-		logrus.Println(err)
+		logrus.WithError(err).Trace("Error validating house")
 
 		return &errors.Error{
 			Message: fmt.Sprintf("Invalid house data: %s", err.Error()),
@@ -56,6 +40,7 @@ func (h *Handler) CreateHouse(c *fiber.Ctx) error {
 		}
 	}
 
+	// TODO: verificar se o owner existe
 	owner := 1
 
 	result, err := h.Usecases.CreateHouse(c.Context(), &models.House{
@@ -68,6 +53,8 @@ func (h *Handler) CreateHouse(c *fiber.Ctx) error {
 		OwnerID: &owner,
 	})
 	if err != nil {
+		logrus.WithError(err).Trace("Error creating house")
+
 		return err
 	}
 
@@ -75,16 +62,19 @@ func (h *Handler) CreateHouse(c *fiber.Ctx) error {
 }
 
 func (h *Handler) GetHouse(c *fiber.Ctx) error {
+	logrus.Trace("GetHouse handler called")
+
 	id, err := c.ParamsInt("id")
-	if err != nil {
+	if err != nil || id < 0 {
+		logrus.WithError(err).Trace("Invalid ID", id)
+
 		return fiber.ErrBadRequest
 	}
 
 	house, err := h.Usecases.GetHouse(c.Context(), uint(id))
-
-	logrus.Infoln(house)
-
 	if err != nil {
+		logrus.WithError(err).Trace("Error getting house")
+
 		return err
 	}
 
@@ -92,12 +82,22 @@ func (h *Handler) GetHouse(c *fiber.Ctx) error {
 }
 
 func (h *Handler) GetHouses(c *fiber.Ctx) error {
+	logrus.Trace("GetHouses handler called")
+
 	// gets limit and offset from query
 	limit := c.QueryInt("limit", 10)
 	offset := c.QueryInt("offset", 0)
 
+	if limit <= 0 || offset < 0 {
+		logrus.Trace("Invalid limit or offset", limit, offset)
+
+		return fiber.ErrBadRequest
+	}
+
 	houses, err := h.Usecases.GetHouses(c.Context(), uint(limit), uint(offset))
 	if err != nil {
+		logrus.WithError(err).Trace("Error getting houses")
+
 		return err
 	}
 
@@ -106,18 +106,22 @@ func (h *Handler) GetHouses(c *fiber.Ctx) error {
 
 func (h *Handler) UpdateHouse(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
-	if err != nil {
+	if err != nil || id < 0 {
+		logrus.WithError(err).Trace("Invalid ID", id)
+
 		return fiber.ErrBadRequest
 	}
 
 	house := new(House)
 	if err := c.BodyParser(house); err != nil {
+		logrus.WithError(err).Trace("Error parsing house")
+
 		return err
 	}
 
 	/// Valida o que tem na declaração da struct
 	if err := h.Validator.Struct(house); err != nil {
-		logrus.Println(err)
+		logrus.WithError(err).Trace("Error validating house")
 
 		return &errors.Error{
 			Message: "Invalid house data",
@@ -136,6 +140,8 @@ func (h *Handler) UpdateHouse(c *fiber.Ctx) error {
 		// OwnerID: house.OwnerID,
 	})
 	if err != nil {
+		logrus.WithError(err).Trace("Error updating house")
+
 		return err
 	}
 
@@ -143,13 +149,19 @@ func (h *Handler) UpdateHouse(c *fiber.Ctx) error {
 }
 
 func (h *Handler) DeleteHouse(c *fiber.Ctx) error {
+	logrus.Trace("DeleteHouse handler called")
+
 	id, err := c.ParamsInt("id")
-	if err != nil {
+	if err != nil || id < 0 {
+		logrus.WithError(err).Trace("Invalid ID", id)
+
 		return fiber.ErrBadRequest
 	}
 
 	err = h.Usecases.DeleteHouse(c.Context(), uint(id))
 	if err != nil {
+		logrus.WithError(err).Trace("Error deleting house")
+
 		return err
 	}
 
@@ -157,13 +169,29 @@ func (h *Handler) DeleteHouse(c *fiber.Ctx) error {
 }
 
 func (h *Handler) GetHousesByUserID(c *fiber.Ctx) error {
+	logrus.Trace("GetHousesByUserID handler called")
+
 	id, err := c.ParamsInt("id")
-	if err != nil {
+	if err != nil || id < 0 {
+		logrus.WithError(err).Trace("Invalid ID", id)
+
 		return fiber.ErrBadRequest
 	}
 
-	houses, err := h.Usecases.GetHousesByUserID(c.Context(), uint(id))
+	// gets limit and offset from query
+	limit := c.QueryInt("limit", 10)
+	offset := c.QueryInt("offset", 0)
+
+	if limit <= 0 || offset < 0 {
+		logrus.Trace("Invalid limit or offset", limit, offset)
+
+		return fiber.ErrBadRequest
+	}
+
+	houses, err := h.Usecases.GetHousesByUserID(c.Context(), uint(id), uint(limit), uint(offset))
 	if err != nil {
+		logrus.WithError(err).Trace("Error getting houses by user id")
+
 		return err
 	}
 

@@ -73,6 +73,8 @@ func (s *Server) Listen(port string) error {
 
 		return c.Next()
 	})
+	// TODO: autenticação
+	// TODO: Session ID redis 🚀
 	app.Use(compress.New())
 	app.Use(limiter.New(limiter.Config{
 		Expiration: 10 * time.Second,

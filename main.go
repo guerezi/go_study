@@ -8,7 +8,10 @@ import (
 	"imobiliaria/server"
 	"imobiliaria/server/handlers"
 
+	"github.com/go-playground/locales/en"
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+	en_translations "github.com/go-playground/validator/v10/translations/en"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 )
@@ -64,12 +67,29 @@ func main() {
 		"zipcode": `^[0-9]{5}-[0-9]{3}$`,
 	}
 
+	en := en.New()
+	uni := ut.New(en, en)
+	trans, _ := uni.GetTranslator("en")
+
+	if err := en_translations.RegisterDefaultTranslations(v, trans); err != nil {
+		logrus.WithError(err).Fatal("Error registering default translations")
+	}
+
 	for index, val := range rules {
-		err = v.RegisterValidation(index, validators.RegexValidator(val))
-		// TODO: Better errors messages
-		// v.RegisterTranslation(index, "aaaaa")
-		if err != nil {
+		if err := v.RegisterValidation(index, validators.RegexValidator(val)); err != nil {
 			logrus.WithError(err).Fatalf("Error registering %s validator", index)
+		}
+
+		err = v.RegisterTranslation("required", trans, func(ut ut.Translator) error {
+			return ut.Add("required", "{0} must have a value!", true) // see universal-translator for details
+		}, func(ut ut.Translator, fe validator.FieldError) string {
+			t, _ := ut.T("required", fe.Field())
+
+			return t
+		})
+
+		if err != nil {
+			logrus.WithError(err).Fatalf("Error registering %s translation", index)
 		}
 	}
 

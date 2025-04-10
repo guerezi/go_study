@@ -13,5 +13,5 @@ type Houses interface {
 	UpdateHouse(ctx context.Context, house *models.House) (*models.House, error)
 	DeleteHouse(ctx context.Context, id uint) error
 
-	GetHousesByUserID(ctx context.Context, id uint) ([]*models.House, error)
+	GetHousesByUserID(ctx context.Context, id uint, limit uint, offset uint) ([]*models.House, error)
 }

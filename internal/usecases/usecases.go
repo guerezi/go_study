@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"errors"
-
 	"imobiliaria/internal/repositories"
 
 	"github.com/go-playground/validator/v10"
