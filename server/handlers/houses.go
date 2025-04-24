@@ -11,14 +11,14 @@ import (
 )
 
 type House struct {
-	ID      int     `json:"id" validate:"required"`
+	ID      int     `json:"id"`
 	Street  string  `json:"street" validate:"required,street" `
 	Number  string  `json:"number" validate:"required,number" `
 	City    string  `json:"city" validate:"required,city" `
 	State   string  `json:"state" validate:"required,state" `
 	ZipCode string  `json:"zip_code" validate:"required,zipcode" `
 	Price   float64 `json:"price" validate:"required,gte=0,lte=99999999"`
-	// OwnerID *int    `json:"owner_id"`
+	OwnerID *int    `json:"owner_id"`
 }
 
 func (h *Handler) CreateHouse(c *fiber.Ctx) error {

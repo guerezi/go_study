@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"imobiliaria/internal/repositories/mysql"
+	"imobiliaria/internal/repositories/database/mysql"
 	"imobiliaria/internal/usecases"
 	"imobiliaria/internal/validators"
 	"imobiliaria/server"
@@ -28,6 +28,11 @@ type Config struct {
 	User     string `env:"DB_USER" default:"root"`
 	Password string `env:"DB_PASSWORD" default:"password"`
 	Database string `env:"DB_NAME" default:"database"`
+
+	RedisHost     string `env:"REDIS_HOST" default:"localhost"`
+	RedisPort     string `env:"REDIS_PORT" default:"6379"`
+	RedisPassword string `env:"REDIS_PASSWORD" default:"password"`
+	RedisDatabase string `env:"REDIS_DB" default:"0"`
 }
 
 func main() {
@@ -41,6 +46,34 @@ func main() {
 	if err := envconfig.Process(ctx, &c); err != nil {
 		panic(err)
 	}
+
+	// redisPort := func() int {
+	// 	port, err := strconv.Atoi(c.RedisPort)
+	// 	if err != nil {
+	// 		logrus.WithError(err).Fatal("Invalid Redis port")
+	// 	}
+	// 	return port
+	// }()
+
+	// redisDatabase := func() int {
+	// 	port, err := strconv.Atoi(c.RedisDatabase)
+	// 	if err != nil {
+	// 		logrus.WithError(err).Fatal("Invalid Redis Database")
+	// 	}
+	// 	return port
+	// }()
+
+	// // TODO: Deveria estar dentro do newRepository?
+	// _, err := redis.NewCache(&redis.Config{
+	// 	Host:     c.RedisHost,
+	// 	Port:     redisPort,
+	// 	Password: c.RedisPassword,
+	// 	Database: redisDatabase,
+	// })
+
+	// if err != nil {
+	// 	logrus.WithError(err).Fatal("Error creating redis repository")
+	// }
 
 	// obg chat gpt
 	// Preicsa ser ponteiro pq to recendo interface (??)
@@ -102,6 +135,7 @@ func main() {
 	/// H com & quer dizer que não é uma copia
 	s := &server.Server{
 		Handler: &h,
+		// Redis:   r,
 	}
 
 	if err := s.Listen(DefaultPort); err != nil {

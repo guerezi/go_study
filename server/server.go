@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	// "imobiliaria/internal/repositories/cache/redis"
 	errorsUsecase "imobiliaria/internal/usecases/errors"
 	"imobiliaria/server/handlers"
 	errorsHandler "imobiliaria/server/handlers/errors"
@@ -14,15 +15,23 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
+	"github.com/gofiber/fiber/v2/middleware/session"
 
 	"github.com/sirupsen/logrus"
 )
 
 type Server struct {
 	Handler *handlers.Handler
+	// Redis   *redis.Redis
 }
 
 func (s *Server) Listen(port string) error {
+
+	sessionStorage := session.New(session.Config{
+		Expiration: 24 * time.Hour,
+		// Storage:    s.Redis.Storage,
+	})
+
 	app := fiber.New(fiber.Config{
 		BodyLimit: 1 * 1024 * 1024, // 1MB
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
@@ -73,20 +82,44 @@ func (s *Server) Listen(port string) error {
 
 		return c.Next()
 	})
-	// TODO: autenticação
-	// TODO: Session ID redis 🚀
 	app.Use(compress.New())
 	app.Use(limiter.New(limiter.Config{
 		Expiration: 10 * time.Second,
 	}))
 	app.Use(helmet.New())
 
-	api := app.Group("/api")
+	// absurdos
+	app.Post("/api/login", func(c *fiber.Ctx) error {
+		c.Locals("sessionStorage", sessionStorage)
+
+		return s.Handler.Login(c)
+	})
+
+	app.Post("/api/register", s.Handler.CreateUser)
+
+	api := app.Group("/api", func(c *fiber.Ctx) error {
+		logrus.Infoln("Middleware de segurança :)")
+
+		sess, err := sessionStorage.Get(c)
+		if err != nil {
+			logrus.WithError(err).Error("Error getting session")
+
+			return c.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+		}
+
+		username := sess.Get("user") // Email?
+		logrus.Info("Username: ", username)
+
+		if username == nil || username == "" {
+			return c.Status(fiber.StatusUnauthorized).SendString("Unauthorized")
+		}
+
+		return c.Next()
+	})
 
 	users := api.Group("/users")
 
 	users.Get("/:id", s.Handler.GetUser)
-	users.Post("/", s.Handler.CreateUser)
 
 	houses := api.Group("/houses")
 
