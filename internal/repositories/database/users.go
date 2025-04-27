@@ -6,7 +6,7 @@ import (
 )
 
 type Users interface {
-	CreateUser(context.Context, *models.User) (*models.User, error)
-	GetUser(context.Context, int) (*models.User, error)
-	Login(context.Context, string, string) (*models.User, error)
+	CreateUser(ctx context.Context, user *models.User) (*models.User, error)
+	GetUser(ctx context.Context, id int) (*models.User, error)
+	Login(ctx context.Context, email string, password string) (*models.User, error)
 }

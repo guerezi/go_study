@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"imobiliaria/internal/repositories/cache/redis"
 	"imobiliaria/internal/repositories/database/mysql"
 	"imobiliaria/internal/usecases"
 	"imobiliaria/internal/validators"
 	"imobiliaria/server"
 	"imobiliaria/server/handlers"
+	"strconv"
 
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
@@ -23,12 +25,11 @@ import (
 const DefaultPort = ":3000"
 
 type Config struct {
-	Host     string `env:"DB_HOST" default:"localhost"`
-	Port     string `env:"DB_PORT" default:"3306"`
-	User     string `env:"DB_USER" default:"root"`
-	Password string `env:"DB_PASSWORD" default:"password"`
-	Database string `env:"DB_NAME" default:"database"`
-
+	Host          string `env:"DB_HOST" default:"localhost"`
+	Port          string `env:"DB_PORT" default:"3306"`
+	User          string `env:"DB_USER" default:"root"`
+	Password      string `env:"DB_PASSWORD" default:"password"`
+	Database      string `env:"DB_NAME" default:"database"`
 	RedisHost     string `env:"REDIS_HOST" default:"localhost"`
 	RedisPort     string `env:"REDIS_PORT" default:"6379"`
 	RedisPassword string `env:"REDIS_PASSWORD" default:"password"`
@@ -47,33 +48,25 @@ func main() {
 		panic(err)
 	}
 
-	// redisPort := func() int {
-	// 	port, err := strconv.Atoi(c.RedisPort)
-	// 	if err != nil {
-	// 		logrus.WithError(err).Fatal("Invalid Redis port")
-	// 	}
-	// 	return port
-	// }()
+	redisPort := func() int {
+		port, err := strconv.Atoi(c.RedisPort)
+		if err != nil {
+			logrus.WithError(err).Fatal("Invalid Redis port")
+		}
+		return port
+	}()
 
-	// redisDatabase := func() int {
-	// 	port, err := strconv.Atoi(c.RedisDatabase)
-	// 	if err != nil {
-	// 		logrus.WithError(err).Fatal("Invalid Redis Database")
-	// 	}
-	// 	return port
-	// }()
+	// TODO: Deveria estar dentro do newRepository?
+	r, err := redis.NewCache(&redis.Config{
+		Host:     c.RedisHost,
+		Port:     redisPort,
+		Password: c.RedisPassword,
+		Database: 0, // redisDatabase,
+	})
 
-	// // TODO: Deveria estar dentro do newRepository?
-	// _, err := redis.NewCache(&redis.Config{
-	// 	Host:     c.RedisHost,
-	// 	Port:     redisPort,
-	// 	Password: c.RedisPassword,
-	// 	Database: redisDatabase,
-	// })
-
-	// if err != nil {
-	// 	logrus.WithError(err).Fatal("Error creating redis repository")
-	// }
+	if err != nil {
+		logrus.WithError(err).Fatal("Error creating redis repository")
+	}
 
 	// obg chat gpt
 	// Preicsa ser ponteiro pq to recendo interface (??)
@@ -135,7 +128,7 @@ func main() {
 	/// H com & quer dizer que não é uma copia
 	s := &server.Server{
 		Handler: &h,
-		// Redis:   r,
+		Storage:   r.Storage,
 	}
 
 	if err := s.Listen(DefaultPort); err != nil {

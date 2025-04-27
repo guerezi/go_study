@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	// "imobiliaria/internal/repositories/cache/redis"
 	errorsUsecase "imobiliaria/internal/usecases/errors"
 	"imobiliaria/server/handlers"
 	errorsHandler "imobiliaria/server/handlers/errors"
@@ -22,14 +21,13 @@ import (
 
 type Server struct {
 	Handler *handlers.Handler
-	// Redis   *redis.Redis
+	Storage fiber.Storage
 }
 
 func (s *Server) Listen(port string) error {
-
 	sessionStorage := session.New(session.Config{
 		Expiration: 24 * time.Hour,
-		// Storage:    s.Redis.Storage,
+		Storage:    s.Storage,
 	})
 
 	app := fiber.New(fiber.Config{
@@ -87,19 +85,19 @@ func (s *Server) Listen(port string) error {
 		Expiration: 10 * time.Second,
 	}))
 	app.Use(helmet.New())
-
-	// absurdos
-	app.Post("/api/login", func(c *fiber.Ctx) error {
+	app.Use(func(c *fiber.Ctx) error {
 		c.Locals("sessionStorage", sessionStorage)
 
-		return s.Handler.Login(c)
+		return c.Next()
 	})
+
+	// absurdos
+	app.Post("/api/login", s.Handler.Login)
 
 	app.Post("/api/register", s.Handler.CreateUser)
 
 	api := app.Group("/api", func(c *fiber.Ctx) error {
-		logrus.Infoln("Middleware de segurança :)")
-
+		// TODO: arrumar isso aqui, deixar mais bonito
 		sess, err := sessionStorage.Get(c)
 		if err != nil {
 			logrus.WithError(err).Error("Error getting session")

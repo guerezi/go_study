@@ -86,6 +86,8 @@ func (m *MySQL) CreateUser(ctx context.Context, user *models.User) (*models.User
 		return nil, err
 	}
 
+	// TODO: check if email already exists
+
 	result, err := m.Database.ExecContext(ctx, "INSERT INTO users (name, email, age, password) VALUES (?, ?, ?, ?)", user.Name, user.Email, user.Age, string(password))
 	logrus.Trace("User created?", result)
 
@@ -137,7 +139,7 @@ func (m *MySQL) GetUser(ctx context.Context, id int) (*models.User, error) {
 	var u models.User
 	logrus.Trace("Getting user enter row")
 	for rows.Next() {
-		err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.Age)
+		err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.PasswordHash, &u.Age)
 		logrus.Trace("Getting user on next")
 		if err != nil {
 			logrus.WithError(err).Trace("Error on next")
@@ -145,6 +147,8 @@ func (m *MySQL) GetUser(ctx context.Context, id int) (*models.User, error) {
 			return nil, err
 		}
 	}
+
+	u.PasswordHash = ""
 
 	return &u, nil
 }

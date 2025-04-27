@@ -95,13 +95,12 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	store := c.Locals("sessionStorage").(*session.Store)
 	sess, err := store.Get(c)
 
-	
 	if err != nil {
 		logrus.WithError(err).Error("Error getting session")
-		
+
 		return err
 	}
-	
+
 	sess.Set("user", result.Email)
 	if err := sess.Save(); err != nil {
 		logrus.WithError(err).Error("Error saving session")

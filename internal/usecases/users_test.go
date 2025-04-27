@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"imobiliaria/internal/models"
-	"imobiliaria/internal/repositories/mocks"
+	"imobiliaria/internal/repositories/database/mocks"
 	errorsUsecase "imobiliaria/internal/usecases/errors"
 
 	"github.com/stretchr/testify/assert"

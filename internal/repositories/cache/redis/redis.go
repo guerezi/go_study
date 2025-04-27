@@ -22,17 +22,17 @@ type Config struct {
 func NewCache(config *Config) (*Redis, error) {
 	logrus.Trace("Creating Redis repository")
 
-	storeage := redis.New(redis.Config{
+	storage := redis.New(redis.Config{
 		Host:     config.Host,
 		Port:     config.Port,
 		Password: config.Password,
 		Database: config.Database,
 	})
 
-	logrus.Infoln("Created redis storage")
+	logrus.Trace("Created redis storage")
 
 	Redis := &Redis{
-		Storage: storeage,
+		Storage: storage,
 	}
 
 	return Redis, nil
