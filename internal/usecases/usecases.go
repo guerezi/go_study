@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"errors"
+	"imobiliaria/internal/repositories/cache/redis"
 	repositories "imobiliaria/internal/repositories/database"
 
 	"github.com/go-playground/validator/v10"
@@ -13,8 +14,9 @@ var (
 )
 
 type usecases struct {
-	repo repositories.Repositories
-	val  *validator.Validate
+	repo  repositories.Repositories
+	cache *redis.Redis
+	val   *validator.Validate
 }
 
 type Usecases interface {
@@ -25,6 +27,6 @@ type Usecases interface {
 
 var _ Usecases = new(usecases)
 
-func NewUsecases(repo repositories.Repositories, val *validator.Validate) Usecases {
-	return &usecases{repo: repo, val: val}
+func NewUsecases(repo repositories.Repositories, val *validator.Validate, cache *redis.Redis) Usecases {
+	return &usecases{repo: repo, val: val, cache: cache}
 }

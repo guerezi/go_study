@@ -2,6 +2,7 @@ package redis
 
 import (
 	repositories "imobiliaria/internal/repositories/cache"
+	"time"
 
 	"github.com/gofiber/storage/redis"
 	"github.com/sirupsen/logrus"
@@ -38,4 +39,19 @@ func NewCache(config *Config) (*Redis, error) {
 	return Redis, nil
 }
 
-var _ repositories.Repositories = new(Redis)
+// Delete implements repositories.Cache.
+func (r *Redis) Delete(key string) error {
+	return r.Storage.Delete(key)
+}
+
+// Get implements repositories.Cache.
+func (r *Redis) Get(key string) ([]byte, error) {
+	return r.Storage.Get(key)
+}
+
+// Set implements repositories.Cache.
+func (r *Redis) Set(key string, value []byte, exp repositories.Expiration) error {
+	return r.Storage.Set(key, value, time.Duration(exp))
+}
+
+var _ repositories.Cache = new(Redis)

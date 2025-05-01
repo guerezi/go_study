@@ -3,6 +3,7 @@ package usecases
 import (
 	"context"
 	"imobiliaria/internal/models"
+	"imobiliaria/internal/repositories/cache"
 	"imobiliaria/internal/usecases/errors"
 
 	"github.com/sirupsen/logrus"
@@ -17,6 +18,8 @@ type Houses interface {
 	GetHousesByUserID(ctx context.Context, id uint, limit uint, offset uint) ([]*models.House, error)
 }
 
+const houseCacheKey = "house"
+
 func (u *usecases) GetHouse(ctx context.Context, id uint) (*models.House, error) {
 	logrus.Trace("GetHouse usecase called")
 	// max int number just because
@@ -28,6 +31,12 @@ func (u *usecases) GetHouse(ctx context.Context, id uint) (*models.House, error)
 			errors.ErrorCodeInvalid,
 			nil,
 		)
+	}
+
+	if house, err := cache.Get[models.House](u.cache, cache.BuildKey(houseCacheKey, id)); err == nil {
+		logrus.Trace("house found in cache")
+
+		return house, nil
 	}
 
 	house, err := u.repo.GetHouse(ctx, id)
@@ -49,6 +58,10 @@ func (u *usecases) GetHouse(ctx context.Context, id uint) (*models.House, error)
 			errors.ErrorCodeNotFound,
 			nil,
 		)
+	}
+
+	if err := cache.Set(u.cache, cache.BuildKey(houseCacheKey, id), house, cache.DefaultSetExpiration); err != nil {
+		logrus.WithError(err).Error("error setting user in cache")
 	}
 
 	logrus.Trace("Returnning house", house)
@@ -103,7 +116,11 @@ func (u *usecases) GetHouses(ctx context.Context, limit uint, offset uint) ([]*m
 	if err != nil {
 		logrus.WithError(err).Trace("Error getting houses")
 
-		return nil, err
+		return nil, errors.NewError(
+			"Error getting houses",
+			errors.ErrorDataBase,
+			err,
+		)
 	}
 
 	if len(houses) == 0 {
@@ -155,6 +172,10 @@ func (u *usecases) UpdateHouse(ctx context.Context, house *models.House) (*model
 	}
 	logrus.Trace("House updated", updatedHouse)
 
+	if err := cache.Delete(u.cache, cache.BuildKey(houseCacheKey, updatedHouse.ID)); err != nil {
+		logrus.Trace("Error deleting house from cache on update", err)
+	}
+
 	return updatedHouse, nil
 }
 
@@ -180,6 +201,10 @@ func (u *usecases) DeleteHouse(ctx context.Context, id uint) error {
 			errors.ErrorDataBase,
 			err,
 		)
+	}
+
+	if err := cache.Delete(u.cache, cache.BuildKey(houseCacheKey, id)); err != nil {
+		logrus.Trace("Error deleting house from cache on update", err)
 	}
 
 	logrus.Trace("House deleted", id)
