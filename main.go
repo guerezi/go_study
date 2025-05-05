@@ -119,7 +119,7 @@ func main() {
 		}
 	}
 
-	u := usecases.NewUsecases(m, v)
+	u := usecases.NewUsecases(m, v, r)
 	h := handlers.Handler{
 		Usecases:  u,
 		Validator: v,
@@ -128,7 +128,7 @@ func main() {
 	/// H com & quer dizer que não é uma copia
 	s := &server.Server{
 		Handler: &h,
-		Storage:   r.Storage,
+		Cache:   r,
 	}
 
 	if err := s.Listen(DefaultPort); err != nil {
