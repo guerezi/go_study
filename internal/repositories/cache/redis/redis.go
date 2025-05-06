@@ -1,14 +1,14 @@
 package redis
 
 import (
-	repositories "imobiliaria/internal/repositories/cache"
 	"time"
+
+	"imobiliaria/internal/repositories/cache"
 
 	"github.com/gofiber/storage/redis"
 	"github.com/sirupsen/logrus"
 )
 
-// TODO: Não deveria estar aqui como eu pensei :(
 type Redis struct {
 	Storage *redis.Storage
 }
@@ -20,7 +20,7 @@ type Config struct {
 	Database int
 }
 
-func NewCache(config *Config) (*Redis, error) {
+func NewCache(config *Config) (cache.Cache, error) {
 	logrus.Trace("Creating Redis repository")
 
 	storage := redis.New(redis.Config{
@@ -50,8 +50,13 @@ func (r *Redis) Get(key string) ([]byte, error) {
 }
 
 // Set implements repositories.Cache.
-func (r *Redis) Set(key string, value []byte, exp repositories.Expiration) error {
+func (r *Redis) Set(key string, value []byte, exp cache.Expiration) error {
 	return r.Storage.Set(key, value, time.Duration(exp))
 }
 
-var _ repositories.Cache = new(Redis)
+// GetStorage implements cache.Cache.
+func (r *Redis) GetStorage() interface{} {
+	return r.Storage
+}
+
+var _ cache.Cache = (*Redis)(nil)

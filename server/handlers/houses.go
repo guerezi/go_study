@@ -2,9 +2,10 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
+
 	"imobiliaria/internal/models"
 	"imobiliaria/server/handlers/errors"
-	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
@@ -31,7 +32,7 @@ func (h *Handler) CreateHouse(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err := h.Validator.Struct(house); err != nil {
+	if err := h.validator.Validate(house); err != nil {
 		logrus.WithError(err).Trace("Error validating house")
 
 		return &errors.Error{
@@ -43,7 +44,7 @@ func (h *Handler) CreateHouse(c *fiber.Ctx) error {
 	// TODO: verificar se o owner existe
 	owner := 1
 
-	result, err := h.Usecases.CreateHouse(c.Context(), &models.House{
+	result, err := h.usecases.CreateHouse(c.Context(), &models.House{
 		Street:  house.Street,
 		Number:  house.Number,
 		City:    house.City,
@@ -71,7 +72,7 @@ func (h *Handler) GetHouse(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	house, err := h.Usecases.GetHouse(c.Context(), uint(id))
+	house, err := h.usecases.GetHouse(c.Context(), uint(id))
 	if err != nil {
 		logrus.WithError(err).Trace("Error getting house")
 
@@ -94,7 +95,7 @@ func (h *Handler) GetHouses(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	houses, err := h.Usecases.GetHouses(c.Context(), uint(limit), uint(offset))
+	houses, err := h.usecases.GetHouses(c.Context(), uint(limit), uint(offset))
 	if err != nil {
 		logrus.WithError(err).Trace("Error getting houses")
 
@@ -120,7 +121,7 @@ func (h *Handler) UpdateHouse(c *fiber.Ctx) error {
 	}
 
 	/// Valida o que tem na declaração da struct
-	if err := h.Validator.Struct(house); err != nil {
+	if err := h.validator.Validate(house); err != nil {
 		logrus.WithError(err).Trace("Error validating house")
 
 		return &errors.Error{
@@ -129,7 +130,7 @@ func (h *Handler) UpdateHouse(c *fiber.Ctx) error {
 		}
 	}
 
-	result, err := h.Usecases.UpdateHouse(c.Context(), &models.House{
+	result, err := h.usecases.UpdateHouse(c.Context(), &models.House{
 		ID:      id,
 		Street:  house.Street,
 		Number:  house.Number,
@@ -158,7 +159,7 @@ func (h *Handler) DeleteHouse(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	err = h.Usecases.DeleteHouse(c.Context(), uint(id))
+	err = h.usecases.DeleteHouse(c.Context(), uint(id))
 	if err != nil {
 		logrus.WithError(err).Trace("Error deleting house")
 
@@ -188,7 +189,7 @@ func (h *Handler) GetHousesByUserID(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	houses, err := h.Usecases.GetHousesByUserID(c.Context(), uint(id), uint(limit), uint(offset))
+	houses, err := h.usecases.GetHousesByUserID(c.Context(), uint(id), uint(limit), uint(offset))
 	if err != nil {
 		logrus.WithError(err).Trace("Error getting houses by user id")
 

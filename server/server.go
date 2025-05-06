@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"imobiliaria/internal/repositories/cache"
 	"imobiliaria/internal/repositories/cache/redis"
 	errorsUsecase "imobiliaria/internal/usecases/errors"
 	"imobiliaria/server/handlers"
@@ -22,13 +23,14 @@ import (
 
 type Server struct {
 	Handler *handlers.Handler
-	Cache   *redis.Redis
+	// TODO: deveria ter *
+	Cache cache.Cache
 }
 
 func (s *Server) Listen(port string) error {
 	sessionStorage := session.New(session.Config{
 		Expiration: 24 * time.Hour,
-		Storage:    s.Cache.Storage,
+		Storage:    s.Cache.GetStorage().(*redis.Redis).Storage,
 	})
 
 	app := fiber.New(fiber.Config{

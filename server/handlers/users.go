@@ -1,9 +1,10 @@
 package handlers
 
 import (
+	"net/http"
+
 	"imobiliaria/internal/models"
 	"imobiliaria/server/handlers/errors"
-	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
@@ -30,7 +31,7 @@ func (h *Handler) CreateUser(c *fiber.Ctx) error {
 	}
 
 	/// Valida o que tem na declaração da struct
-	if err := h.Validator.Struct(u); err != nil {
+	if err := h.validator.Validate(u); err != nil {
 		logrus.Println(err)
 
 		return &errors.Error{
@@ -39,7 +40,7 @@ func (h *Handler) CreateUser(c *fiber.Ctx) error {
 		}
 	}
 
-	result, err := h.Usecases.CreateUser(c.Context(), &models.User{
+	result, err := h.usecases.CreateUser(c.Context(), &models.User{
 		Name:         u.Name,
 		Email:        u.Email,
 		Age:          u.Age,
@@ -58,7 +59,7 @@ func (h *Handler) GetUser(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	user, err := h.Usecases.GetUser(c.Context(), id)
+	user, err := h.usecases.GetUser(c.Context(), id)
 
 	logrus.Infoln(user)
 
@@ -76,7 +77,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	}
 
 	/// Valida o que tem na declaração da struct
-	if err := h.Validator.Struct(u); err != nil {
+	if err := h.validator.Validate(u); err != nil {
 		logrus.Println(err)
 
 		return &errors.Error{
@@ -85,7 +86,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		}
 	}
 
-	result, err := h.Usecases.Login(c.Context(), u.Email, u.Password)
+	result, err := h.usecases.Login(c.Context(), u.Email, u.Password)
 	if err != nil {
 		logrus.WithError(err).Error("Error logging in")
 
@@ -94,7 +95,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 
 	store := c.Locals("sessionStorage").(*session.Store)
 	sess, err := store.Get(c)
-
 	if err != nil {
 		logrus.WithError(err).Error("Error getting session")
 

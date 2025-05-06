@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+
 	"imobiliaria/internal/models"
 	"imobiliaria/internal/repositories/cache"
 	"imobiliaria/internal/usecases/errors"
@@ -21,17 +22,7 @@ type Houses interface {
 const houseCacheKey = "house"
 
 func (u *usecases) GetHouse(ctx context.Context, id uint) (*models.House, error) {
-	logrus.Trace("GetHouse usecase called")
-	// max int number just because
-	if id <= 0 && id >= ^uint(0)>>1 {
-		logrus.Trace("Invalid ID", id)
-
-		return nil, errors.NewError(
-			"id should be defined",
-			errors.ErrorCodeInvalid,
-			nil,
-		)
-	}
+	logrus.Tracef("GetHouse usecase called %d", id)
 
 	if house, err := cache.Get[models.House](u.cache, cache.BuildKey(houseCacheKey, id)); err == nil {
 		logrus.Trace("house found in cache")
@@ -61,7 +52,7 @@ func (u *usecases) GetHouse(ctx context.Context, id uint) (*models.House, error)
 	}
 
 	if err := cache.Set(u.cache, cache.BuildKey(houseCacheKey, id), house, cache.DefaultSetExpiration); err != nil {
-		logrus.WithError(err).Error("error setting user in cache")
+		logrus.WithError(err).Error("error setting house in cache")
 	}
 
 	logrus.Trace("Returnning house", house)
@@ -82,7 +73,7 @@ func (u *usecases) CreateHouse(ctx context.Context, house *models.House) (*model
 	}
 
 	// TODO: colocar isso em outros lugare?
-	if err := u.val.Struct(house); err != nil {
+	if err := u.validator.Validate(house); err != nil {
 		logrus.WithError(err).Trace("Error validating house model")
 
 		return nil, errors.NewError(
@@ -150,7 +141,7 @@ func (u *usecases) UpdateHouse(ctx context.Context, house *models.House) (*model
 		)
 	}
 
-	if err := u.val.Struct(house); err != nil {
+	if err := u.validator.Validate(house); err != nil {
 		logrus.WithError(err).Error("Error validating house model")
 
 		return nil, errors.NewError(

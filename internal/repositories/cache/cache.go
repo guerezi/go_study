@@ -14,6 +14,8 @@ type Cache interface {
 	Get(key string) ([]byte, error)
 	Set(key string, value []byte, exp Expiration) error
 	Delete(key string) error
+
+	GetStorage() interface{}
 }
 
 type Expiration time.Duration
