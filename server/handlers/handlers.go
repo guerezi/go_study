@@ -2,12 +2,17 @@ package handlers
 
 import (
 	"imobiliaria/internal/usecases"
-
-	"github.com/go-playground/validator/v10"
+	"imobiliaria/internal/validator"
 )
 
-// Implements implicito
 type Handler struct {
-	Usecases  usecases.Usecases
-	Validator *validator.Validate
+	usecases  usecases.Usecases    // sem ponteiro pq é uma interface
+	validator *validator.Validator // ponteiro porque é um struct
+}
+
+func NewHandler(usecases usecases.Usecases, validator *validator.Validator) *Handler {
+	return &Handler{
+		usecases:  usecases,
+		validator: validator,
+	}
 }

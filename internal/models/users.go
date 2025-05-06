@@ -1,30 +1,19 @@
 package models
 
 type User struct {
-	ID    int    `json:"id" bson:"id" validate:"required"`
-	Name  string `json:"name" bson:"name" validate:"required"`
-	Email string `json:"email" bson:"email" validate:"required,email"`
-	Age   *int   `json:"age" bson:"age" validate:"required,gte=0,lte=130"`
+	ID           int    `json:"id" bson:"id" validate:"required"`
+	Name         string `json:"name" bson:"name" validate:"required"`
+	Email        string `json:"email" bson:"email" validate:"required,email"`
+	Age          *int   `json:"age" bson:"age" validate:"gte=0,lte=130"`
+	PasswordHash string `json:"password" bson:"password"`
 }
 
-type Houses struct {
-	ID int `json:"id" bson:"id" validate:"required"`
-}
+// TODO
+// type password struct {
+// 	Password string `json:"password" bson:"password" validate:"required"`
+// 	Hash     string `json:"hash" bson:"hash" validate:"required"`
+// }
 
-// se me atacar eu vou atacar
-// TODO: criar um model de houses
-
-// TODO: authenticaçao com sessão ?? 
-// como faz pra verificar uma sessão mds
-// if tem no banco user e password, deu boa :)
-// Criar um novo serviço no docker (redis/varkey)
-
-// Ter no redis um codigo bonito 
-// id do user, hash
-// valor vai ser o token usado de verdade?
-
-// sahdvkahjsdbjkajks : 123 ??
-// 123 : { gabrielzinho : 123 }
-// Sei lá porra
-
-// redis pra cache
+// func (p* password) HashPassword() (string, error) {
+// 	// ir e voltar de hash
+// }

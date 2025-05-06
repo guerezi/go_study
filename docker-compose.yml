@@ -1,5 +1,20 @@
 name: RealState
 services:
+  redis:
+    image: redis:latest
+    # command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    # volumes:
+    #   - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
   db:
     image: mysql:8.0
     environment:
@@ -26,10 +41,15 @@ services:
       DB_USER: root
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       DB_NAME: ${MYSQL_DATABASE}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     ports:
       - "3000:3000"
+      - "3030:3030"
     depends_on:
       - db
+      - redis
     restart: always
     volumes:
       - .:/app
