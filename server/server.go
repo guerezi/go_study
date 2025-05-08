@@ -23,8 +23,7 @@ import (
 
 type Server struct {
 	Handler *handlers.Handler
-	// TODO: deveria ter *
-	Cache cache.Cache
+	Cache   cache.Cache
 }
 
 func (s *Server) Listen(port string) error {

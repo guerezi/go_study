@@ -273,7 +273,11 @@ func TestCreateHouse(t *testing.T) {
 			t.Log(err)
 
 			assert.Equal(t, test.Result.House, result, "house should be equal")
-			assert.Equal(t, test.Result.Error, err, "error should be equal")
+			// assert.ErrorIs(t, err, test.Result.Error, "error should be equal")
+			assert.Equal(t, err, test.Result.Error, "error should be equal")
 		})
 	}
+
+	repo.AssertExpectations(t)
+	cache.AssertExpectations(t)
 }

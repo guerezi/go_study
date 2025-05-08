@@ -124,9 +124,13 @@ func TestCreateUser(t *testing.T) {
 			t.Log(result)
 
 			assert.Equal(t, test.Result.User, result, "user should be equal")
-			assert.Equal(t, test.Result.Error, err, "error should be equal")
+			// assert.ErrorIs(t, err, test.Result.Error, "error should be equal")
+			assert.Equal(t, err, test.Result.Error, "error should be equal")
 		})
 	}
+
+	repo.AssertExpectations(t)
+	cache.AssertExpectations(t)
 }
 
 func TestGetUser(t *testing.T) {
@@ -219,7 +223,7 @@ func TestGetUser(t *testing.T) {
 
 				assert.NoError(t, err, "error should be nil")
 
-				cache.On("Get", "user:1").Return(cacheData, nil).Once()
+				cache.On("Get", "user:1").Return(nil, nil).Once()
 
 				repo.On("GetUser", ctx, 1).Return(&models.User{
 					ID:    1,
@@ -241,7 +245,10 @@ func TestGetUser(t *testing.T) {
 			t.Log(result)
 
 			assert.Equal(t, test.Result.User, result, "user should be equal")
-			assert.Equal(t, test.Result.Error, err, "error should be equal")
+			// assert.ErrorIs(t, err, test.Result.Error, "error should be equal")
+			assert.Equal(t, err, test.Result.Error, "error should be equal")
 		})
 	}
+	repo.AssertExpectations(t)
+	cache.AssertExpectations(t)
 }

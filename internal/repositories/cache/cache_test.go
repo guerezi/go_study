@@ -108,10 +108,9 @@ func TestGet(t *testing.T) {
 
 			assert.Equal(t, test.Result.Data, result, "data should be equal")
 			assert.ErrorIs(t, err, test.Result.Error, "error should be equal")
-
-			mockedCache.AssertExpectations(t)
 		})
 	}
+	mockedCache.AssertExpectations(t)
 }
 
 // func TestSet(t *testing.T) {
